@@ -1,0 +1,140 @@
+﻿@{
+    ViewData["Title"] = "Produk";
+}
+<div class="text-center">
+    <h1 class="display-4">STORE</h1>
+</div>
+
+<input type="hidden" id="txtProdukId" style="margin-right:5px;"/>
+<br/>
+<br />
+<input type="text" id="txtNamaBarang" style="margin-right:5px;" placeholder="Nama Barang" />
+<br />
+<br />
+<input type="text" id="txtKodeBarang" style="margin-right:5px;" placeholder="Kode Barang" />
+<br />
+<br />
+<input type="text" id="txtJumlahBarang" style="margin-right:5px;" placeholder="Jumlah Barang" />
+<br />
+<br />
+<input type="date" id="txtTanggal" style="margin-right:5px;" placeholder="Tanggal" />
+<br />
+<br />
+<button id="btnSaveProduk" class="btn btn-success">Save Produk</button>
+<button id="btnUpdateProduk" class="btn btn-success">Update Produk</button>
+<br />
+<br />
+<input type="text" id="txtSearch" style="margin-right:5px;" placeholder="Nama Barang" />
+<button id="btnProduk" class="btn btn-primary">Search</button>
+<br />
+<br />
+<table id="tblProduk" class="table table-striped table-bordered">
+    <thead>
+        <th>Id</th>
+        <th>Nama Barang</th>
+        <th>Kode Barang</th>
+        <th>Jumlah Barang</th>
+        <th>Tanggal</th>
+        <th>Action</th>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+
+<script src="~/jquery/jquery.min.js"></script>
+<script type="text/javascript">
+    $("#btnUpdateProduk").hide();
+    $("#btnSaveProduk").show();
+    var _produk = [];
+    $("#btnProduk").click(function () {
+        SearchProduk();
+    });
+    $("#btnSaveProduk").click(function () {
+        var Produk = {
+            id: $("#txtProdukId").val(),
+            nama_barang: $("#txtNamaBarang").val(),
+            kode_barang: $("#txtKodeBarang").val(),
+            jumlah_barang: $("#txtJumlahBarang").val(),
+            tanggal: $("#txtTanggal").val(),
+        };
+        $.post("Produk/Save", Produk, function () {
+            $("#txtProdukId").val(0);
+            SearchProduk();
+            Reset();
+        });
+    });
+    $("#btnUpdateProduk").click(function () {
+        var Produk = {
+            id: $("#txtProdukId").val(),
+            nama_barang: $("#txtNamaBarang").val(),
+            kode_barang: $("#txtKodeBarang").val(),
+            jumlah_barang: $("#txtJumlahBarang").val(),
+            tanggal: $("#txtTanggal").val(),
+        };
+        $.post("Produk/Update", Produk, function () {
+            $("#txtProdukId").val(0);
+            SearchProduk();
+            Reset();
+        });
+    });
+    function SearchProduk() {
+        _produk = [];
+        $("#tblProduk tbody tr").remove();
+
+        var name = $.trim($("#txtSearch").val());
+        $.get("Produk/Search?name=" + name, function (Produks) {
+            _produk = Produks;
+            $.map(Produks, function (produk) {
+                $("#tblProduk tbody").append(`<tr>
+                                                    <td>`+ produk.id + `</td>
+                                                    <td>`+ produk.nama_barang + `</td>
+                                                    <td>`+ produk.kode_barang + `</td>
+                                                    <td>`+ produk.jumlah_barang + `</td>
+                                                    <td>`+ produk.tanggal + `</td>
+                                                    <td>
+                                                            <button class="btn btn-primary" onclick='Edit(`+ produk.id + `)'>Edit</button>
+                                                            <button class="btn btn-primary" onclick='Delete(`+ produk.id + `)'>Delete</button>
+                                                    </td>
+                                            `);
+            });
+        });
+
+    }
+    function Edit(id) {
+        var produk = _produk.find(x => x.id == id);
+        $("#btnUpdateProduk").show();
+        $("#btnSaveProduk").hide();
+        $("#txtProdukId").val(produk.id);
+        $("#txtNamaBarang").val(produk.nama_barang);
+        $("#txtKodeBarang").val(produk.kode_barang);
+        $("#txtJumlahBarang").val(produk.jumlah_barang);
+        $("#txtTanggal").val(produk.tanggal);
+    }
+    function Delete(id) {
+        var produk = _produk.find(x => x.id == id);
+        $.post("Produk/Delete?id=" + id, function () {
+            SearchProduk();
+        });
+    }
+    function Reset() {
+        $("#txtProdukId").val(0);
+        $("#txtNamaBarang").val("");
+        $("#txtKodeBarang").val("");
+        $("#txtJumlahBarang").val("");
+        $("#txtTanggal").val("");
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
